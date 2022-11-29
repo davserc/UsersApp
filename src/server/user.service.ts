@@ -176,8 +176,8 @@ export async function currentUser (req,res){
     email = null;
   }
    res.cookie("id",id,"username",username,"email",email)
-   res.cookie("email",email)
-   res.cookie("username",username)
+//    res.cookie("email",email)
+//    res.cookie("username",username)
    res.status(200).end();
 }
 
