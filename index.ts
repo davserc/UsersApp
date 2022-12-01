@@ -1,5 +1,5 @@
-import { AppDataSource } from "./data-source"
-import { Users } from "./entity/Users"
+import { AppDataSource } from "./src/data-source"
+import { Users } from "./src/entity/Users"
 export { singUp,
          singIn,
          updateUser,
@@ -7,7 +7,7 @@ export { singUp,
          currentUser,
          authenticateMail,
          forgotPasswordMail,
-         resetPassword } from "./server/user.service"
+         resetPassword } from "./src/server/user.service"
 
 AppDataSource.initialize().then(async () => {
     let userRepository = AppDataSource.getRepository(Users);
