@@ -1,0 +1,27 @@
+{
+   "name": "@davse/users_manager",
+   "version": "1.0.3",
+   "description": "Libreria para el menejo de usuarios de un api rest",
+   "type": "commonjs",
+   "devDependencies": {
+      "@types/node": "^16.11.10",
+      "ts-node": "10.7.0",
+      "typescript": "4.5.2"
+   },
+   "dependencies": {
+      "bcrypt": "5.1.0",
+      "jsonwebtoken": "8.5.1",
+      "nodemailer": "6.8.0",
+      "passport": "0.6.0",
+      "passport-local": "1.0.0",
+      "pg": "^8.4.0",
+      "reflect-metadata": "^0.1.13",
+      "typeorm": "0.3.11",
+      "util": "0.12.5",
+      "validator": "13.7.0"
+   },
+   "scripts": {
+      "start": "ts-node src/index.ts",
+      "typeorm": "typeorm-ts-node-commonjs"
+   }
+}
