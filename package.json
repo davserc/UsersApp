@@ -2,12 +2,16 @@
    "name": "@davse/users_manager",
    "version": "1.0.4",
    "description": "Libreria para el menejo de usuarios de un api rest",
-   "type": "commonjs",
+   "main": "index.ts",
    "devDependencies": {
       "@types/node": "^16.11.10",
       "ts-node": "10.7.0",
       "typescript": "4.5.2"
    },
+   "repository": {
+      "type": "git",
+      "url": "git+https://github.com/davserc/UsersApp.git"
+    },
    "dependencies": {
       "bcrypt": "5.1.0",
       "jsonwebtoken": "8.5.1",
