@@ -26,3 +26,38 @@ Description: This function is to authenticate the user's mail account.
 Description: This function is to reset the user account password.
 - forgotPasswordMail function (req, res, AppDataSource, Users)
 Description: This function consists of sending an email to restore the password of the user account.
+
+### Function variables
+-AppDataSource is the typeorm connection.
+-Users is the user entity model of your table in the database.
+Expected structure:
+```@Entity()
+export class Users {
+
+    @PrimaryGeneratedColumn()
+    id: number;
+
+    @PrimaryColumn("varchar", { length: 200 })
+    mail: string;
+
+    @Column("varchar", { length: 60 })
+    userName: string;    
+
+    @Column("varchar", { length: 500 })
+    password: string;
+
+    @Column("varchar", { length: 15, default: null})
+    mobilePhone: string;
+
+    @Column({default: false})
+    verifiedAcount: boolean;
+
+    @Column("date")
+    creationDate: Date;
+
+    @Column("varchar",{default: null})
+    imgURL: string;
+
+    @Column("varchar",{ length: 200 })
+    confirmationCode: string; 
+}```
