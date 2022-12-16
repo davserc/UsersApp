@@ -1,0 +1,25 @@
+{
+  "name": "@davse/users_manager",
+  "version": "1.0.7",
+  "description": "Libreria para el menejo de usuarios de un api rest",
+  "main": "index.js",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/davserc/UsersApp.git"
+  },
+  "scripts": {
+    "start": "node index.js",
+    "build": "tsc"
+  },
+  "author": "davse <davserc@gmail.com> (http://davse.com/)",
+  "license": "ISC",
+  "dependencies": {
+    "bcrypt": "5.1.0",
+    "dotenv": "16.0.3",
+    "jsonwebtoken": "8.5.1",
+    "nodemailer": "6.8.0",
+    "passport": "0.6.0",
+    "passport-local": "1.0.0",
+    "validator": "13.7.0"
+  }
+}
