@@ -31,7 +31,8 @@ Description: This function consists of sending an email to restore the password 
 -AppDataSource is the typeorm connection.
 -Users is the user entity model of your table in the database.
 Expected structure:
-```@Entity()
+```
+@Entity()
 export class Users {
 
     @PrimaryGeneratedColumn()
@@ -60,4 +61,4 @@ export class Users {
 
     @Column("varchar",{ length: 200 })
     confirmationCode: string; 
-}```
+}
