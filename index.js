@@ -14,7 +14,7 @@ var user = {
     resetPassword: _user.resetPassword,
     updateUser: _user.updateUser
 }
-console.log(user);
+
 var _default = user;
 exports.default = _default;
 module.exports = exports.default;
