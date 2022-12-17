@@ -10,26 +10,26 @@ User account management.
   - EXPIRYSECONDS=[TokenExpirationSeconds]
 
 ### Functions
-- singIn function (req, res, AppDataSource, Users)
+- singIn function (req, res, repository)
 Description: This function is for user authentication and session initialization.
-- singUp function (req, res, AppDataSource, Users)
+- singUp function (req, res, repository, user)
 Description: This function is to create a user account.
-- updateUser function (req, res, AppDataSource, Users)
+- updateUser function (req, res, repository)
 Description: This function is to update user account information.
 - logOut function (req, res)
 Description: This function is to exit the session.
-- currentUser function (req, res, AppDataSource, Users)
+- currentUser function (req, res, repository)
 Description: This function returns session information for the current user.
-- authenticateMail function (req, res, AppDataSource, Users)
+- authenticateMail function (req, res, repository)
 Description: This function is to authenticate the user's mail account.
-- resetPassword function (req, res, AppDataSource, Users)
+- resetPassword function (req, res, repository)
 Description: This function is to reset the user account password.
-- forgotPasswordMail function (req, res, AppDataSource, Users)
+- forgotPasswordMail function (req, res, repository)
 Description: This function consists of sending an email to restore the password of the user account.
 
 ### Function variables
--AppDataSource is the typeorm connection.
--Users is the user entity model of your table in the database.
+-repository is the user repository.
+-user is an instance of the user entity.
 Expected structure:
 ```
 @Entity()

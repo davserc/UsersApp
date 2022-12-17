@@ -19,9 +19,9 @@ var validatePassword = function(user, password){
     return bcrypt.compareSync(password, user.password);   
 }
 
-exports.singUp = async function (req, res, AppDataSource, Users){
+exports.singUp = async function (req, res, repository, user){
     try{
-        let userRepository = AppDataSource.getRepository(Users);
+        let userRepository = repository;
         let finduser = await userRepository.findOne({where : { mail: req.body.mail }});
         let error = await checkUserData(req,finduser)
         if(error){
@@ -30,19 +30,19 @@ exports.singUp = async function (req, res, AppDataSource, Users){
         }
             
   
-            const user = new Users();
-            user.mail = req.body.mail;
-            user.userName = req.body.username;
-            user.password = await createHash(req.body.password);
-            user.mobilePhone = req.body.mobilephone != undefined? codArea + req.body.mobilephone : '';
-            user.creationDate = new Date();
-            user.confirmationCode = jwt.sign({email: req.body.mail}, process.env.JWTKEY)
-            await userRepository.save(user);            
+            const newUser = user;
+            newUser.mail = req.body.mail;
+            newUser.userName = req.body.username;
+            newUser.password = await createHash(req.body.password);
+            newUser.mobilePhone = req.body.mobilephone != undefined? codArea + req.body.mobilephone : '';
+            newUser.creationDate = new Date();
+            newUser.confirmationCode = jwt.sign({email: req.body.mail}, process.env.JWTKEY)
+            await userRepository.save(newUser);            
 
             await nodemailer.sendConfirmationEmail(
-                user.userName,
-                user.mail,
-                user.confirmationCode
+                newUser.userName,
+                newUser.mail,
+                newUser.confirmationCode
              );
 
             res.status(201).end(JSON.stringify({
@@ -77,7 +77,7 @@ async function checkUserData (req, user){
     return error;
 }
 
-exports.singIn = async function (req, res, AppDataSource, Users){
+exports.singIn = async function (req, res, repository){
     passport.use(new LocalStrategy(
         {
             usernameField: 'mail',
@@ -85,7 +85,7 @@ exports.singIn = async function (req, res, AppDataSource, Users){
             session: false
         }, 
     function (mail, password, cb) {
-        let userRepository = AppDataSource.getRepository(Users);
+        let userRepository = repository;
         let minutos = 600000;
         //this one is typically a DB call. Assume that the returned user object is pre-formatted and ready for storing in JWT
         return userRepository.findOne({where : {mail: mail}})
@@ -131,8 +131,8 @@ exports.singIn = async function (req, res, AppDataSource, Users){
     })(req, res);
 }  
 
-exports.updateUser = async function (req, res, AppDataSource, Users){
-    let userRepository = AppDataSource.getRepository(Users);
+exports.updateUser = async function (req, res, repository){
+    let userRepository = repository;
     let finduser = await userRepository.findOne({where : {id : req.session.userID}});
     if (finduser != undefined){
         if(req.body.password != undefined)
@@ -155,8 +155,8 @@ exports.logOut = async function (req,res){
       });
 }
 
-exports.currentUser = async function (req, res, AppDataSource, Users){
-    let userRepository = AppDataSource.getRepository(Users);
+exports.currentUser = async function (req, res, repository){
+    let userRepository = repository;
     let user,id,username,email;
     if (req.cookies.token) {
        const token = req.cookies.token;
@@ -174,8 +174,8 @@ exports.currentUser = async function (req, res, AppDataSource, Users){
    res.status(200).end();
 }
 
-exports.authenticateMail = async function (req, res, AppDataSource, Users){
-    let userRepository = AppDataSource.getRepository(Users);
+exports.authenticateMail = async function (req, res, repository){
+    let userRepository = repository;
     userRepository.findOne({where : {confirmationCode: req.params.confirmationCode,}}).then((user) => {
           if (!user) {
             return res.status(404).send({ message: "User Not found." });
@@ -188,8 +188,8 @@ exports.authenticateMail = async function (req, res, AppDataSource, Users){
         .catch((e) => console.log("error", e));    
 }
 
-exports.resetPassword = async function (req, res, AppDataSource, Users){
-    let userRepository = AppDataSource.getRepository(Users);
+exports.resetPassword = async function (req, res, repository){
+    let userRepository = repository;
     userRepository.findOne({where : {confirmationCode: req.body.code}}).then((user) => {
         if (!user) {
           return res.status(404).send({ message: "Invalid confirmation code." });
@@ -203,8 +203,8 @@ exports.resetPassword = async function (req, res, AppDataSource, Users){
       .catch((e) => {console.log("error ", e); return res.status(500).send({ message: "Error can´t change the password." })});
 }
 
-exports.forgotPasswordMail = async function (req, res, AppDataSource, Users){
-    let userRepository = AppDataSource.getRepository(Users);
+exports.forgotPasswordMail = async function (req, res, repository){
+    let userRepository = repository;
     userRepository.findOne({where : {mail: req.body.mail}}).then((user) => {
         if (!user) {
           return res.status(404).send({ message: "User Not found." });
