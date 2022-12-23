@@ -20,7 +20,7 @@ exports.sendConfirmationEmail = async function (name, email, confirmationCode){
     html: `<h1>Email Confirmation</h1>
         <h2>Hello ${name}</h2>
         <p>Thank you for subscribing. Please confirm your email by clicking on the following link</p>
-        <a href=http://localhost:3000/confirm/${confirmationCode}> Click here</a>
+        <a href=${process.env.SERVER_PATHBASE}/api/v1/${confirmationCode}> Click here</a>
         </div>`,
   }).catch(err => console.log(err));
 };
@@ -32,7 +32,7 @@ exports.sendForgotPasswordEmail = async function (email, confirmationCode){
     to: email,
     subject: "Reset Password Link",
     html: `<p>You requested for reset password, use this link
-     <a href=http://localhost:3000/password/${confirmationCode}> Click here </a> 
+     <a href=${process.env.FORGOTPASSWORD_PATHBASE}${confirmationCode}> Click here </a> 
      to reset your password</p>`,
   }).catch(err => console.log(err));
 };

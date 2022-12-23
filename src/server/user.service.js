@@ -24,7 +24,7 @@ exports.singUp = async function (req, res, repository, user){
         let userRepository = repository;
         let finduser = await userRepository.findOne({where : { mail: req.body.mail }});
         let error = await checkUserData(req,finduser)
-        if(error){
+        if(Object.keys(error).length != 0){
             res.status(400).end(JSON.stringify(error));
             return;
         }
