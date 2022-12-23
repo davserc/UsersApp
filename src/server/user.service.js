@@ -7,6 +7,8 @@ const jwt = require('jsonwebtoken');
 const nodemailer = require("./authMail.service");
 const jwtExpirySeconds = process.env.EXPIRYSECONDS;
 const codArea = '549'; //Argentine area code
+var formidable = require('formidable');
+var fs = require('fs');
 require('dotenv').config();
 
 // Generates hash using bCrypt
@@ -17,6 +19,19 @@ var createHash = async function(password){
 // Validated password
 var validatePassword = function(user, password){   
     return bcrypt.compareSync(password, user.password);   
+}
+
+var fileupload = function(req){
+        var form = new formidable.IncomingForm();
+        var newpath = '';
+        form.parse(req, function (err, fields, files) {
+          var oldpath = files.filetoupload.filepath;
+          newpath = `${process.env.FILE_REPOSITOR_PATH}imgage-${Date.now().toString()}`;
+          fs.rename(oldpath, newpath, function (err) {
+            if (err) throw err;
+          });
+        });
+        return newpath;
 }
 
 exports.singUp = async function (req, res, repository, user){
@@ -133,12 +148,12 @@ exports.singIn = async function (req, res, repository){
 
 exports.updateUser = async function (req, res, repository){
     let userRepository = repository;
-    let finduser = await userRepository.findOne({where : {id : req.session.userID}});
+    let finduser = await userRepository.findOne({where : {id : req.session.user.id}});
     if (finduser != undefined){
-        if(req.body.password != undefined)
-          finduser.password = await createHash(req.body.password);
         if(req.body.mobilephone != undefined)
           finduser.mobilePhone = codArea + req.body.mobilephone;
+        if(req.files)
+          finduser.imgURL = fileupload(req);  
         await userRepository.save(finduser);
     }
 
