@@ -1,0 +1,70 @@
+{
+	"info": {
+		"_postman_id": "948655ca-f62f-4c4d-86ee-9e72c0dfdd4a",
+		"name": "AppUser",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "5969028"
+	},
+	"item": [
+		{
+			"name": "Singup",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n       \"mail\": \"davserc@gmail.com\",\r\n       \"username\": \"davse\",\r\n       \"mobilephone\": \"1166067448\",\r\n       \"password\": \"D31s3rc1234\"\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://localhost:8080/api/v1/singup",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8080",
+					"path": [
+						"api",
+						"v1",
+						"singup"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Singin",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"mail\": \"davserc@gmail.com\",\r\n    \"password\": \"D31s3rc1234\"\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://localhost:8080/api/v1/singin",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8080",
+					"path": [
+						"api",
+						"v1",
+						"singin"
+					]
+				}
+			},
+			"response": []
+		}
+	]
+}
