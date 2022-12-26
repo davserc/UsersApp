@@ -43,7 +43,7 @@
 				"header": [],
 				"body": {
 					"mode": "raw",
-					"raw": "{\r\n    \"mail\": \"davserc@gmail.com\",\r\n    \"password\": \"D31s3rc1234\"\r\n}",
+					"raw": "{\r\n    \"mail\": \"pepe@example.com\",\r\n    \"password\": \"ASDFG1234#\"\r\n}",
 					"options": {
 						"raw": {
 							"language": "json"
@@ -73,7 +73,7 @@
 				"header": [],
 				"body": {
 					"mode": "raw",
-					"raw": "{\r\n    \"mail\": \"davserc@gmail.com\"\r\n}",
+					"raw": "{\r\n    \"mail\": \"pepe@example.com\"\r\n}",
 					"options": {
 						"raw": {
 							"language": "json"

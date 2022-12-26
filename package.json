@@ -1,6 +1,6 @@
 {
   "name": "@davse/users_manager",
-  "version": "1.0.9",
+  "version": "1.0.10",
   "description": "Libreria para el menejo de usuarios de un api rest",
   "main": "index.js",
   "repository": {
