@@ -10,10 +10,13 @@ User account management.
   - EXPIRYSECONDS=[86400]
   - FRONTEND_CONFIRMATIONEMAIL_PATH=[http://localhost:3000/confirm/]
   - FRONTEND_FORGOTPASSWORD_PATH=[http://localhost:3000/password/]
-  - FILE_REPOSITOR_PATH=[C:/Users/x/Files/]
+  - FILE_FOLDER_PATH = "imgs/"
+  -	VALID_FILESIZE = 2000000
+  -	VALID_FILEFORMAT = "image/jpeg,image/webp,image/svg+xml"
+  - MOBILEPHONE_REGION = "es-AR" /*validator npm isMobilePhone*/
 
 ### Functions
-- singIn function (req, res, repository)
+- singIn function (req, res, repository, wsession)
 Description: This function is for user authentication and session initialization.
 - singUp function (req, res, repository, user)
 Description: This function is to create a user account.
@@ -33,6 +36,7 @@ Description: This function generates a confirmation code, associates it with the
 ### Function variables
 -repository is the user repository.
 -user is an instance of the user entity.
+-wsession true/false if it implements 'express-session'.
 Expected structure:
 ```
 @Entity()

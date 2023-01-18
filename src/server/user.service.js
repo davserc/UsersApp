@@ -21,30 +21,33 @@ var validatePassword = function(user, password){
     return bcrypt.compareSync(password, user.password);   
 }
 
-var fileupload = function(req){
-        var form = new formidable.IncomingForm();
+var fileupload = function(files){
         var newpath = '';
-        form.parse(req, function (err, fields, files) {
-          var oldpath = files.filetoupload.filepath;
-          newpath = `${process.env.FILE_REPOSITOR_PATH}imgage-${Date.now().toString()}`;
+          var oldpath = files.img.filepath;
+          newpath = `${process.env.FILE_FOLDER_PATH}image-${Date.now().toString()}.${files.img.mimetype.split('/')[1]}`;
           fs.rename(oldpath, newpath, function (err) {
             if (err) throw err;
           });
-        });
         return newpath;
 }
 
 exports.singUp = async function (req, res, repository, user){
     try{
         let userRepository = repository;
-        let finduser = await userRepository.findOne({where : { mail: req.body.mail }});
-        let error = await checkUserData(req,finduser)
-        if(Object.keys(error).length != 0){
-            res.status(400).end(JSON.stringify(error));
+        let error = await checkUserData(req);
+    
+        if(typeof error != "undefined"){
+            res.status(400).json(error).end();
             return;
         }
-            
-  
+
+        let finduser = await userRepository.findOne({where : { mail: req.body.mail }}); 
+
+        if (typeof finduser != "undefined"){
+         res.status(400).json({"message" : "The email is already registered."}).end();
+         return;
+        }
+        
             const newUser = user;
             newUser.mail = req.body.mail;
             newUser.userName = req.body.username;
@@ -72,61 +75,65 @@ exports.singUp = async function (req, res, repository, user){
 }
 
 // Check UserData
-async function checkUserData (req, user){
-    let error = {};
-    if(user != undefined){
-        error = {status : 400, message : "The email is already registered.", code : 1};        
-    };
+async function checkUserData (req){
+    var error = undefined;        
 
-    if(!(await controldata.checkPassword(req.body.password))){
-        error = {status : 400, message : "Invalid format Password.", code : 2};
-    }  
+    if(typeof error == "undefined")
+      error = typeof req.body.password != "undefined" ? 
+      await controldata.checkPassword(req.body.password) : {"message" : "You must enter a password."};
+
+    if(typeof error == "undefined")
+      error = typeof req.body.mail != "undefined" ? 
+      await controldata.checkMail(req.body.mail) : {"message" : "You must enter an email."};
     
-    if(!(await controldata.checkMail(req.body.mail))){
-        error = {status : 400, message : "Invalid format Mail.", code : 1};
-    }
+    if(typeof error == "undefined")
+      error = typeof req.body.mobilephone != "undefined" ? 
+      await controldata.checkMobilePhone(codArea + req.body.mobilephone) : undefined;
 
-    if(req.body.mobilephone != undefined && !(await controldata.checkMobilePhone(codArea + req.body.mobilephone))){
-        error = {status : 400, message : "Invalid format mobilephone.", code : 3};
-    }
     return error;
 }
 
-exports.singIn = async function (req, res, repository){
-    passport.use(new LocalStrategy(
+exports.singIn = async function (req, res, repository, wsession){
+    await passport.use(new LocalStrategy(
         {
             usernameField: 'mail',
             passwordField: 'password',
             session: false
         }, 
-    function (mail, password, cb) {
+    function (mail, password, done) {
         let userRepository = repository;
         let minutos = 600000;
         //this one is typically a DB call. Assume that the returned user object is pre-formatted and ready for storing in JWT
-        return userRepository.findOne({where : {mail: mail}})
+        userRepository.findOne({where : {mail: mail}})
            .then(user => {
                if (!user || !validatePassword(user,password)) {
-                   return cb(null, false, {message: 'Incorrect email or password.'});
+                   return done(null, false, {message: 'Incorrect email or password.'});
                }
                if(!user.verifiedAcount){
-                   return cb(null, false, {message: 'Pending Account. Please Verify Your Email!'});
+                   return done(null, false, {message: 'Pending Account. Please Verify Your Email!'});
                }
-               //req.session.userid = user.id;
+               if(wsession)
                req.session.cookie.expires = new Date(Date.now() + minutos);
-               return cb(null, user, {message: 'Logueo exitoso'});
+               return done(null, user, {message: 'Logueo exitoso'});
           })
-          .catch(err => cb(err));
+          .catch(err => { return done(err)});
     }
     ));
 
     passport.authenticate('local', {session: false}, (err, user, info) => {    
-        const sessionUser = {
+        const sessionUser = user ? {
             id : user.id,
             username : user.userName,
             email : user.mail
-        }    
+        } : {};   
         if (err || !user) {
             return res.status(401).json(info);
+        }
+        user = {
+            "mail" : user.mail,
+            "name" : user.userName,
+            "mobilePhone" : user.mobilePhone,
+            "imgURL" : user.imgURL
         }
        req.login(user, {session: false}, (err) => {
            if (err) {
@@ -137,7 +144,7 @@ exports.singIn = async function (req, res, repository){
            algorithm: "HS256",
            expiresIn: jwtExpirySeconds,
            });
-
+           if(wsession)
            req.session.user = sessionUser;
            res.cookie("token", token, { maxAge: jwtExpirySeconds * 1000, sameSite: 'lax', secure: false});
            res.json({user, token});
@@ -148,16 +155,44 @@ exports.singIn = async function (req, res, repository){
 
 exports.updateUser = async function (req, res, repository){
     let userRepository = repository;
-    let finduser = await userRepository.findOne({where : {id : req.session.user.id}});
-    if (finduser != undefined){
-        if(req.body.mobilephone != undefined)
-          finduser.mobilePhone = codArea + req.body.mobilephone;
-        if(req.files)
-          finduser.imgURL = fileupload(req);  
-        await userRepository.save(finduser);
-    }
+    var finduser = await userRepository.findOne({where : {id : req.session.user.id}});
 
-    res.status(201).end(JSON.stringify(finduser))
+    var form = new formidable.IncomingForm();
+
+    form.parse(req, function(err, fields, files) {
+       if (err) {
+         console.error(err.message);
+         res.status(500).end();
+         return;
+        }
+
+        if (typeof finduser != "undefined"){
+         Promise.all([
+           Object.keys(fields).length != 0 ?
+            controldata.checkMobilePhone(codArea + fields.mobilePhone).then(error => {
+               if (typeof error != "undefined"){
+                   return error;
+               }   
+               finduser.mobilePhone = codArea + fields.mobilePhone; 
+            }) : undefined,
+           Object.keys(files).length != 0 ?   
+            controldata.validateIMG(files).then(error => {
+                if (typeof error != "undefined"){
+                   console.log(error);
+                   return error;
+                }
+                finduser.imgURL = fileupload(files);
+            }) : undefined ]).then(values => {
+               if (typeof values[0] == "undefined" && typeof values[1] == "undefined"){
+                   userRepository.save(finduser);
+                   res.status(200).json({"message" : "User updated."}).end();
+               }
+               typeof values[0] != "undefined" ? res.status(400).json(values[0]).end() : res.status(400).json(values[1]).end();      
+            })
+        }
+
+    });
+
 }
 
 exports.logOut = async function (req,res){
@@ -166,27 +201,35 @@ exports.logOut = async function (req,res){
             res.status(500).end(JSON.stringify({message : err}))
         }
         res.clearCookie("token");
-        res.status(201).end(JSON.stringify({message : "Sesion closed"}))
+        res.clearCookie("id");
+        res.status(201).json({message : "Sesion closed"}).end()
       });
 }
 
 exports.currentUser = async function (req, res, repository){
     let userRepository = repository;
-    let user,id,username,email;
+    let user,id;
     if (req.cookies.token) {
        const token = req.cookies.token;
        const decoded = await promisify(jwt.verify)(token, process.env.JWTKEY);
       user = await userRepository.findOne({where : {'mail' : decoded.user.mail}});
       id = user.id;
-      username = user.userName;
-      email = user.mail;
+      user = {
+       "name" : user.userName,
+       "email" : user.mail,
+       "mobilePhone" : user.mobilePhone,
+       "imgURL" : user.imgURL
+      }
    } else {
-    id = null;
-    username = null;
-    email = null;
+    user = {
+        "name" : null,
+        "email" : null,
+        "mobilePhone" : null,
+        "imgURL" : null
+       }
   }
-   res.cookie("id",id,"username",username,"email",email)
-   res.status(200).end();
+   res.cookie("id",id);
+   res.status(200).json(user).end();
 }
 
 exports.authenticateMail = async function (req, res, repository){
@@ -199,8 +242,10 @@ exports.authenticateMail = async function (req, res, repository){
           user.verifiedAcount = true;
 
           userRepository.save(user);
+
+          return res.status(200).send({ message: "Confirmed email." });
         })
-        .catch((e) => console.log("error", e));    
+        .catch((e) => {console.log("error", e); return res.status(500).send({ message: "Server error." });});    
 }
 
 exports.resetPassword = async function (req, res, repository){
