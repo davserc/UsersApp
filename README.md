@@ -68,4 +68,7 @@ export class Users {
 
     @Column("varchar",{ length: 200 })
     confirmationCode: string; 
-}
+} 
+```
+
+#### Implementation example : https://github.com/davserc/testUserApp
